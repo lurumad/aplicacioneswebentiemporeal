@@ -30,7 +30,7 @@ class Cart {
     constructor() {
         this.orderStatus = ko.observable(0);
         this.showShoppingCart = ko.observable(true);
-        this.showOderStatusTracking = ko.observable(true);
+        this.showOderStatusTracking = ko.observable(false);
         this.lines = ko.observableArray([new CartLine()]);
         this.grandTotal = ko.computed(() => {
             let total = 0;
