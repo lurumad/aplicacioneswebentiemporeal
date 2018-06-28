@@ -76,7 +76,7 @@ class Cart {
                 this.orderStatus(status);
                 if (status === Status.Shipped) {
                     console.log('closing');
-                    source.close();
+                    socket.close();
                 }
             };
             
