@@ -73,7 +73,7 @@ class Cart {
                         this.orderStatus(status);
                         return status === Status.Shipped;
                     }), 30000, 1000)
-            .then(result => console.log('Poll finished!'));
+            .then(result => console.log('Pool finished!'));
         });
     };
 
