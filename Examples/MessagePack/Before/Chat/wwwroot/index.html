@@ -1,0 +1,56 @@
+﻿<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+  <meta charset="UTF-8">
+  <title>SignalR Chat</title>
+  
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css">
+
+  <link rel='stylesheet prefetch' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css'>
+
+      <link rel="stylesheet" href="css/style.css">
+
+  
+</head>
+
+<body>
+    <div class="container clearfix">
+        <div class="chat">
+            <div class="chat-header clearfix">
+                <div class="chat-about">
+                    <div class="chat-with">SignalR Chat</div>
+                    <div class="chat-num-messages">already <span data-bind="text: count"></span> messages from <span data-bind="text: users"></span> users connected</div>
+                </div>
+                <i class="fa fa-star"></i>
+            </div> <!-- end chat-header -->
+            <div class="chat-history" data-bind="foreach: messages">
+                <ul>
+                    <li class="clearfix">
+                        <div class="message-data" data-bind='css: { "align-right": username !== $parent.me()}'>
+                            <span class="message-data-time" data-bind="text: timeago().format(time)"></span> &nbsp; &nbsp;
+                            <span class="message-data-name" data-bind="text: username"></span>
+                        </div>
+                        <div class="message" data-bind='css: $parent.ownMessage(username)'>
+                            <p data-bind="text: text"></p>
+                        </div>
+                    </li>
+                </ul>
+            </div> <!-- end chat-history -->
+            <div class="chat-message clearfix">
+                <input name="username" id="username" data-bind="value:me, valueUpdate: 'keyup'" placeholder="Type your username" />
+                <textarea name="message-to-send" data-bind="value:text, valueUpdate: 'keyup'" id="message-to-send" placeholder="Type your message" rows="3"></textarea>
+                <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
+                <i class="fa fa-file-image-o"></i>
+                <button data-bind='enable: canSend, click: send'>Send</button>
+            </div> <!-- end chat-message -->
+        </div> <!-- end chat -->
+    </div> <!-- end container -->
+    <script src="js/timeago.js"></script>
+    <script src="js/signalr.js" ></script>
+    <script src="js/msgpack5.js"></script>
+    <script src="js/signalr-protocol-msgpack.js"></script>
+    <script src='js/knockout.js'></script>
+    <script src="js/chat.js"></script>
+</body>
+</html>
