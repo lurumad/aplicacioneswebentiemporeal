@@ -8,6 +8,9 @@ namespace WhatsApp.Repositories
     {
         IEnumerable<Chat> GetChatsBy(User user);
         User GetUserBy(int id);
+        User GetUserBy(string name);
         Chat GetChatBy(Guid id);
+        IEnumerable<Chat> GetAllChats();
+        IEnumerable<Chat> GetChatsBy(string username);
     }
 }

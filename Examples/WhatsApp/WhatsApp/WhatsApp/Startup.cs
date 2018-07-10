@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using WhatsApp.Controllers;
 using WhatsApp.Hubs;
 using WhatsApp.Repositories;
 using WhatsApp.Services;
@@ -16,6 +18,18 @@ namespace WhatsApp
                 .AddSingleton<IChatService, ChatService>()
                 .AddSignalR()
                 .Services
+                .AddAuthorization()
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(option =>
+                    {
+                        option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                        {
+                            ValidIssuer = WhatsAppController.Issuer,
+                            ValidAudience = WhatsAppController.Audience,
+                            IssuerSigningKey = WhatsAppController.SigningCredentials.Key
+                        };
+                    })
+                .Services
                 .AddMvcCore()
                 .AddJsonFormatters(options => options.DefaultValueHandling = Newtonsoft.Json.DefaultValueHandling.Ignore);
         }
@@ -23,10 +37,11 @@ namespace WhatsApp
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app
+                .UseAuthentication()
                 .UseDefaultFiles()
                 .UseStaticFiles()
-                .UseSignalR(routes => routes.MapHub<WhatsAppHub>("/whatsapp"))
-                .UseMvc();
+                .UseMvc()
+                .UseSignalR(routes => routes.MapHub<WhatsAppHub>("/whatsapp"));
         }
     }
 }

@@ -308,9 +308,9 @@
 
             <!-- New Message Sidebar End -->
             <!-- Conversation Start -->
-            <div class="col-sm-8 conversation">
+            <div class="col-sm-8 conversation" data-bind="with: activeChat">
                 <!-- Heading -->
-                <div class="row heading" data-bind="with: activeChat">
+                <div class="row heading" >
                     <div class="col-sm-2 col-md-1 col-xs-3 heading-avatar">
                         <div class="heading-avatar-icon">
                             <img data-bind="attr:{src:image}">
@@ -327,34 +327,15 @@
                 </div>
                 <!-- Heading End -->
                 <!-- Message Box -->
-                <div class="row message" id="conversation">
-                    <div class="row message-previous">
-                        <div class="col-sm-12 previous">
-                            <a onclick="previous(this)" id="ankitjain28" name="20">
-                                Show Previous Message!
-                            </a>
-                        </div>
-                    </div>
+                <div class="row message" id="conversation" data-bind="foreach: messages">
                     <div class="row message-body">
-                        <div class="col-sm-12 message-main-receiver">
+                        <div class="col-sm-12" data-bind="css : $root.ownMessage(userId)">
                             <div class="receiver">
                                 <div class="message-text">
-                                    Hyy, Its Awesome..!
+                                    <span data-bind="text: text"></span>
                                 </div>
                                 <span class="message-time pull-right">
-                                    Sun
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row message-body">
-                        <div class="col-sm-12 message-main-sender">
-                            <div class="sender">
-                                <div class="message-text">
-                                    Thanks n I know its awesome...!
-                                </div>
-                                <span class="message-time pull-right">
-                                    Sun
+                                    <span data-bind="text: userName"></span>
                                 </span>
                             </div>
                         </div>
@@ -367,13 +348,13 @@
                         <i class="fa fa-smile-o fa-2x"></i>
                     </div>
                     <div class="col-sm-9 col-xs-9 reply-main">
-                        <textarea class="form-control" rows="1" id="comment" data-bind="value: comment, valueUpdate: 'afterkeyup'"></textarea>
+                        <textarea class="form-control" rows="1" id="comment" data-bind="value: $parent.comment, valueUpdate: 'afterkeyup'"></textarea>
                     </div>
                     <div class="col-sm-1 col-xs-1 reply-recording">
                         <i class="fa fa-microphone fa-2x" aria-hidden="true"></i>
                     </div>
                     <div class="col-sm-1 col-xs-1 reply-send">
-                        <i class="fa fa-send fa-2x" aria-hidden="true" data-bind="click: send"></i>
+                        <i class="fa fa-send fa-2x" aria-hidden="true" data-bind="click: $parent.send.bind($parent)"></i>
                     </div>
                 </div>
                 <!-- Reply Box End -->

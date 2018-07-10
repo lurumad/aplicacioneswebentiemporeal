@@ -1,23 +1,41 @@
 class WhatsApp {
     constructor() {
+        this.jwtToken = '';
         this.comment = ko.observable('');
         this.me = ko.observable(new Me());
         this.activeChat = ko.observable();
         this.chats = ko.observableArray([]);
         this._connection = new signalR.HubConnectionBuilder()
-            .withUrl('/whatsapp')
+            .withUrl('/whatsapp', { accessTokenFactory: () => this.jwtToken.rawData })
+            .configureLogging(signalR.LogLevel.Trace)
             .build();
-        fetch("/api/whatsapp/users/me")
-            .then(res => res.json())
-            .then(data => {
-                this.me(data.me);
-                this.chats(data.chats);
-                this.activeChat(data.chats[0]);
-                this.connect();
+        let logon = false;
+        this.promiseWhile('', token => !token, this.login)
+            .then(token => {
+                fetch("/api/whatsapp/users/me", {
+                    headers: new Headers({ 'Authorization': `Bearer ${this.jwtToken.rawData}` })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    this.me(data.me);
+                    this.chats(data.chats);
+                    this.activeChat(new Chat(data.chats[0]));
+                    this.connect();
+                });
             });
     }
 
+    ownMessage(userId) {
+        return ko.computed(() => this.me().id === userId ? 'message-main-sender' : 'message-main-receiver');
+    }
+
     connect() {
+        this._connection.on("NewMessage", message => {
+            var messages = this.activeChat().messages();
+            messages.push(message);
+            this.activeChat().messages(messages);
+        });
+
         this._connection.start().catch(error => console.error(error));
     }
 
@@ -27,7 +45,7 @@ class WhatsApp {
 
     send() {
         console.log('send');
-        this._connection.invoke("SendMessage", { chatId: this.activeChat().id, userName: this.me().name, userId: this.me().id, text: this.comment() });
+        this._connection.invoke("SendMessage", { chatId: this.activeChat().id(), userName: this.me().name, userId: this.me().id, text: this.comment() });
         this.comment('');
     }
 
@@ -39,6 +57,32 @@ class WhatsApp {
         document.getElementsByClassName("side-two")[0].style.left = "-100%";
     }
 
+    login() {
+        let name = prompt('Choose a name [Vincent,Aiden,Mike,Erica,Ginger,Tracy,Christian,Monica,Dean,Peyton]')
+        return fetch(`/api/whatsapp/token?name=${name}`)
+            .then(res => res.json())
+            .then(token => {
+                return new Promise((resolve, reject) => {
+                    resolve(token);
+                });
+            })
+            .catch(() => {
+                return new Promise((resolve, reject) => {
+                    reject();
+                });
+            });
+    }
+
+    promiseWhile(data, condition, action) {
+        var whilst = (data) => {
+            this.jwtToken = data;
+            console.log(data);
+            return condition(data) ?
+                action(data).then(whilst) :
+                Promise.resolve(data);
+        }
+        return whilst(data);
+    };
 }
 
 class Me {
@@ -49,24 +93,15 @@ class Me {
     }
 }
 
-class Message {
-    constructor() {
-        this.userid = ko.observable(0);
-        this.username = ko.observable('');
-        this.text = ko.observable('');
-        this.time = ko.observable();
-    }
-}
-
 class Chat {
-    constructor() {
-        this.id = ko.observable('');
-        this.participants = ko.observable([]);
-        this.messages = ko.observableArray([]);
-        this.isGroup = ko.observable(false);
+    constructor(chat) {
+        this.id = ko.observable(chat.id);
+        this.participants = ko.observable(chat.participants);
+        this.messages = ko.observableArray(chat.messages);
+        this.isGroup = ko.observable(chat.isgroup);
         this.unread = ko.observable(0);
-        this.image = ko.observable('');
-        this.name = ko.observable('');
+        this.image = ko.observable(chat.image);
+        this.name = ko.observable(chat.name);
     }
 }
 

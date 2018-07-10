@@ -49,6 +49,11 @@ namespace WhatsApp.Repositories
             };
         }
 
+        public IEnumerable<Chat> GetAllChats()
+        {
+            return chats;
+        }
+
         public Chat GetChatBy(Guid id)
         {
             return chats.SingleOrDefault(c => c.Id == id);
@@ -59,9 +64,19 @@ namespace WhatsApp.Repositories
             return chats.Where(c => c.Participants.Any(p => p.Id == user.Id));
         }
 
+        public IEnumerable<Chat> GetChatsBy(string username)
+        {
+            return chats.Where(c => c.Participants.Any(p => p.Name.Equals(username, StringComparison.InvariantCultureIgnoreCase)));
+        }
+
         public User GetUserBy(int id)
         {
             return users.SingleOrDefault(u => u.Id == id);
+        }
+
+        public User GetUserBy(string name)
+        {
+            return users.SingleOrDefault(u => u.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase));
         }
     }
 }

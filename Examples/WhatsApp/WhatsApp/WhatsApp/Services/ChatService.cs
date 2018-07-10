@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using WhatsApp.Model;
 using WhatsApp.Repositories;
@@ -14,14 +15,24 @@ namespace WhatsApp.Services
             this.chatRepository = chatRepository ?? throw new ArgumentNullException(nameof(chatRepository));
         }
 
+        public IEnumerable<Chat> GetAllChats()
+        {
+            return chatRepository.GetAllChats();
+        }
+
         public Chat GetChatBy(Guid id)
         {
             return chatRepository.GetChatBy(id);
         }
 
-        public WhatsAppResponse GetMe()
+        public IEnumerable<Chat> GetChatsBy(string username)
         {
-            var user = chatRepository.GetUserBy(new Random().Next(1, 10));
+            return chatRepository.GetChatsBy(username);
+        }
+
+        public WhatsAppResponse GetMe(string name)
+        {
+            var user = chatRepository.GetUserBy(name);
             var chats = chatRepository.GetChatsBy(user);
 
             return new WhatsAppResponse
@@ -43,6 +54,11 @@ namespace WhatsApp.Services
         public User GetUserBy(int id)
         {
             return chatRepository.GetUserBy(id);
+        }
+
+        public User GetUserBy(string name)
+        {
+            return chatRepository.GetUserBy(name);
         }
     }
 }
