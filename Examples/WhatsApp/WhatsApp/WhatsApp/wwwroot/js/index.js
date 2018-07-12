@@ -10,7 +10,7 @@ class WhatsApp {
             .configureLogging(signalR.LogLevel.Trace)
             .build();
         let logon = false;
-        this.promiseWhile('', token => !token, this.login)
+        this.promiseWhile('', token => token === '', this.login)
             .then(token => {
                 fetch("/api/whatsapp/users/me", {
                     headers: new Headers({ 'Authorization': `Bearer ${this.jwtToken.rawData}` })
@@ -25,27 +25,38 @@ class WhatsApp {
             });
     }
 
-    ownMessage(userId) {
-        return ko.computed(() => this.me().id === userId ? 'message-main-sender' : 'message-main-receiver');
+    senderClass(userId, css) {
+        return ko.computed(() => this.me().id === userId ? `${css}sender` : `${css}receiver`);
     }
 
     connect() {
         this._connection.on("NewMessage", message => {
-            var messages = this.activeChat().messages();
-            messages.push(message);
-            this.activeChat().messages(messages);
+            if (this.activeChat().id() === message.chatId) {
+                var messages = this.activeChat().messages();
+                messages.push(message);
+                this.activeChat().messages(messages);
+            }
+            else {
+                const chat = this.chats().find(c => c.id === message.chatId);
+                chat.messages.push(message);
+            }
         });
 
         this._connection.start().catch(error => console.error(error));
     }
 
-    chat(contact) {
-        this.activeChat(contact);
+    selectChat(data) {
+        this.activeChat(new Chat(data));
     }
 
     send() {
         console.log('send');
-        this._connection.invoke("SendMessage", { chatId: this.activeChat().id(), userName: this.me().name, userId: this.me().id, text: this.comment() });
+        this._connection.invoke("SendMessage", {
+            chatId: this.activeChat().id(),
+            userId: this.me().id,
+            userName: this.me().name,
+            text: this.comment()
+        });
         this.comment('');
     }
 
@@ -68,7 +79,7 @@ class WhatsApp {
             })
             .catch(() => {
                 return new Promise((resolve, reject) => {
-                    reject();
+                    resolve('');
                 });
             });
     }

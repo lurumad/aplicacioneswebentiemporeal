@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using WhatsApp.Model;
-using WhatsApp.Repositories;
 using WhatsApp.Services;
 
 namespace WhatsApp.Controllers

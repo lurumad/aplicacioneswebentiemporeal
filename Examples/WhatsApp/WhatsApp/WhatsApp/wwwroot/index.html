@@ -44,7 +44,7 @@
                     <!-- Search Box End -->
                     <!-- sideBar -->
                     <div class="row sideBar" data-bind="foreach: chats">
-                        <div class="row sideBar-body" data-bind="click: $parent.chat.bind($parent, $data)">
+                        <div class="row sideBar-body" data-bind="click: $parent.selectChat.bind($parent, $data)">
                             <div class="col-sm-3 col-xs-3 sideBar-avatar">
                                 <div class="avatar-icon">
                                     <img data-bind="attr{src:image}">
@@ -327,10 +327,10 @@
                 </div>
                 <!-- Heading End -->
                 <!-- Message Box -->
-                <div class="row message" id="conversation" data-bind="foreach: messages">
-                    <div class="row message-body">
-                        <div class="col-sm-12" data-bind="css : $root.ownMessage(userId)">
-                            <div class="receiver">
+                <div class="row message" id="conversation" >
+                    <div class="row message-body" data-bind="foreach: messages">
+                        <div class="col-sm-12" data-bind="css : $root.senderClass(userId,'message-main-')">
+                            <div data-bind="css : $root.senderClass(userId,'')">
                                 <div class="message-text">
                                     <span data-bind="text: text"></span>
                                 </div>
