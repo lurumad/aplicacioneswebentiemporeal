@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading.Tasks;
 using WhatsApp.Controllers;
 using WhatsApp.Hubs;
+using WhatsApp.Middlewares;
 using WhatsApp.Repositories;
 using WhatsApp.Services;
 
@@ -20,14 +22,29 @@ namespace WhatsApp
                 .Services
                 .AddAuthorization()
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(option =>
+                    .AddJwtBearer(options =>
                     {
-                        option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                        options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                         {
                             ValidIssuer = WhatsAppController.Issuer,
                             ValidAudience = WhatsAppController.Audience,
                             IssuerSigningKey = WhatsAppController.SigningCredentials.Key
                         };
+
+                        //options.Events = new JwtBearerEvents
+                        //{
+                        //    OnMessageReceived = context =>
+                        //    {
+                        //        var accessToken = context.Request.Query["access_token"];
+
+                        //        if (!string.IsNullOrEmpty(accessToken) &&
+                        //            (context.HttpContext.WebSockets.IsWebSocketRequest || context.Request.Headers["Accept"] == "text/event-stream"))
+                        //        {
+                        //            context.Token = context.Request.Query["access_token"];
+                        //        }
+                        //        return Task.CompletedTask;
+                        //    }
+                        //};
                     })
                 .Services
                 .AddMvcCore()
@@ -37,6 +54,8 @@ namespace WhatsApp
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app
+                .UseWebSockets()
+                .UseMiddleware<AccessTokenMiddleware>()
                 .UseAuthentication()
                 .UseDefaultFiles()
                 .UseStaticFiles()

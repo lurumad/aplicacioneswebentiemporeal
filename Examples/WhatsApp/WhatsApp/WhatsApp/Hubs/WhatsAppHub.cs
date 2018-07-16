@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Threading.Tasks;
 using WhatsApp.Model;
 using WhatsApp.Services;
@@ -14,7 +15,7 @@ namespace WhatsApp.Hubs
 
         public WhatsAppHub(IChatService chatService)
         {
-            this.chatService = chatService ?? throw new System.ArgumentNullException(nameof(chatService));
+            this.chatService = chatService ?? throw new ArgumentNullException(nameof(chatService));
         }
 
         public override Task OnConnectedAsync()
@@ -27,6 +28,18 @@ namespace WhatsApp.Hubs
             }
 
             return base.OnConnectedAsync();
+        }
+
+        public override Task OnDisconnectedAsync(Exception exception)
+        {
+            var chats = chatService.GetChatsBy(Context.User.Identity.Name);
+
+            foreach (var chat in chats)
+            {
+                Groups.RemoveFromGroupAsync(Context.ConnectionId, chat.Id.ToString());
+            }
+
+            return base.OnDisconnectedAsync(exception);
         }
 
         public Task SendMessage(MessageDto message)

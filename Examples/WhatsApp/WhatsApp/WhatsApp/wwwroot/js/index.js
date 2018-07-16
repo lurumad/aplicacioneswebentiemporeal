@@ -1,5 +1,6 @@
 class WhatsApp {
     constructor() {
+        this.connected = ko.observable(false);
         this.jwtToken = '';
         this.comment = ko.observable('');
         this.me = ko.observable(new Me());
@@ -42,7 +43,9 @@ class WhatsApp {
             }
         });
 
-        this._connection.start().catch(error => console.error(error));
+        this._connection.start()
+            .then(() => this.connected(true))
+            .catch(error => console.error(error));
     }
 
     selectChat(data) {
