@@ -66,7 +66,7 @@ class Cart {
             this.showShoppingCart(false);
             this.showOderStatusTracking(true);
 
-            this.pool(() =>
+            this.longPolling(() =>
                 fetch(`api/orders/${data.orderId}`)
                     .then(res => res.json())
                     .then(status => {
@@ -77,7 +77,7 @@ class Cart {
         });
     };
 
-    pool(fn, timeout, interval) {
+    longPolling(fn, timeout, interval) {
         const endTime = Number(new Date()) + (timeout || 30000);
         interval = interval || 1000;
 

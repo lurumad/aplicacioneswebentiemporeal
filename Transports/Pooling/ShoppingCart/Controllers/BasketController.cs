@@ -12,7 +12,8 @@ namespace ShoppingCart.Controllers
 
         public BasketController(ICheckoutService checkoutService)
         {
-            this.checkoutService = checkoutService ?? throw new System.ArgumentNullException(nameof(checkoutService));
+            this.checkoutService = checkoutService 
+                ?? throw new System.ArgumentNullException(nameof(checkoutService));
         }
 
         [Route("checkout")]

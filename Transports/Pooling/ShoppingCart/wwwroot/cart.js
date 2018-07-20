@@ -28,6 +28,7 @@ class CartLine {
 class Cart {
 
     constructor() {
+        this.interval;
         this.orderStatus = ko.observable(0);
         this.showShoppingCart = ko.observable(true);
         this.showOderStatusTracking = ko.observable(false);
@@ -66,37 +67,20 @@ class Cart {
             this.showShoppingCart(false);
             this.showOderStatusTracking(true);
 
-            this.pool(() =>
-                fetch(`api/orders/${data.orderId}`)
-                    .then(res => res.json())
-                    .then(status => {
-                        this.orderStatus(status);
-                        return status === Status.Shipped;
-                    }), 30000, 1000)
-            .then(result => console.log('Pool finished!'));
+            this.interval = setInterval(this.polling.bind(this), 1000, data.orderId);
         });
     };
 
-    pool(fn, timeout, interval) {
-        const endTime = Number(new Date()) + (timeout || 30000);
-        interval = interval || 1000;
+    polling(orderId) {
+        fetch(`api/orders/${orderId}`)
+            .then(res => res.json())
+            .then(status => {
+                this.orderStatus(status);
 
-        const condition = (resolve, reject) => {
-            const promise = fn();
-            promise.then(result => {
-                if (result) {
-                    resolve(result);
-                }
-                else if (Number(new Date()) < endTime) {
-                    setTimeout(condition, interval, resolve, reject);
-                }
-                else {
-                    reject(new Error(`Timed out for ${fn}`));
+                if (status === Status.Shipped) {
+                    clearInterval(this.interval);
                 }
             });
-        };
-
-        return new Promise(condition);
     };
 };
 
