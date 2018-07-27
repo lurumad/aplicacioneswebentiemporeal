@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Title of the document</title>
+</head>
+
+<body>
+    <h1>Users</h1>
+    <button id="loadUsersXMLHttpRequest">Cargar usuarios usando XMLHttpRequest</button>
+    <button id="loadUsersFetch">Cargar usuarios usando Fetch</button>
+    <button id="clearUsers">Limpiar usuarios</button>
+    <ul id="users" />
+</body>
+
+<script>
+    document.getElementById('loadUsersXMLHttpRequest')
+        .addEventListener('click', () => {
+            var request = new XMLHttpRequest();
+            request.onload = (event) => {
+                var json = JSON.parse(event.currentTarget.responseText);
+                json.results.map(user => {
+                    createUserElement(user);
+                });
+                console.log(json);
+            };
+            request.onerror = (message) => {
+                console.error(message);
+            };
+            request.open('GET', 'https://randomuser.me/api/?results=10');
+            request.send();
+        });
+
+    document.getElementById('loadUsersFetch')
+        .addEventListener('click', () => {
+            fetch('https://randomuser.me/api/?results=10')
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+
+                    return data.results.map(user => {
+                        createUserElement(user);
+                    });
+                });
+        });
+
+    document.getElementById('clearUsers')
+        .addEventListener('click', () =>{
+        const ul = document.getElementById('users');
+        while (ul.hasChildNodes()){
+            ul.removeChild(ul.firstChild);
+        }
+    });
+
+    function createUserElement(user) {
+        let ul = document.getElementById('users'),
+            li = document.createElement('li'),
+            img = document.createElement('img'),
+            span = document.createElement('span');
+        img.src = user.picture.medium;
+        span.innerHTML = `${user.name.first} ${user.name.last}`;
+        li.appendChild(img);
+        li.appendChild(span);
+        ul.appendChild(li);
+    }
+</script>
+
+</html>
