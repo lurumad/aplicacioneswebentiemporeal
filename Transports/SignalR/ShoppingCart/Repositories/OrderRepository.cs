@@ -8,15 +8,17 @@ namespace ShoppingCart.Repositories
 {
     public class OrderRepository : IOrderRepository
     {
-        private ConcurrentDictionary<string, OrderStatus> orders =
+        private readonly ConcurrentDictionary<string, OrderStatus> orders =
             new ConcurrentDictionary<string, OrderStatus>();
 
-        public void ChangeStatus(string id)
+        public OrderStatus ChangeStatus(string id)
         {
             if (orders.TryGetValue(id, out OrderStatus currentStatus))
             {
                 orders.TryUpdate(id, currentStatus.Next(), currentStatus);
             }
+
+            return currentStatus;
         }
 
         public string CreateOrder(Basket basket)
@@ -29,7 +31,7 @@ namespace ShoppingCart.Repositories
         public IEnumerable<string> GetOrderIds()
         {
             return orders
-                .Where(kp => kp.Value != OrderStatus.Shipped)
+                .Where(kp => kp.Value != OrderStatus.Completed)
                 .Select(kp => kp.Key);
         }
 

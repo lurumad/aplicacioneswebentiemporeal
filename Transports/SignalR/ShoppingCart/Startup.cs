@@ -5,15 +5,17 @@ using ShoppingCart.HostedServices;
 using ShoppingCart.Hubs;
 using ShoppingCart.Repositories;
 using ShoppingCart.Services;
-using System;
 
 namespace ShoppingCart
 {
     public class Startup
     {
+        private const string Path = "orderstatus";
+
         public void ConfigureServices(IServiceCollection services)
         {
             services
+                .AddMemoryCache()
                 .AddSingleton<IOrderRepository, OrderRepository>()
                 .AddSingleton<ICheckoutService, CheckoutService>()
                 .AddSingleton<IOrderService, OrderService>()
@@ -29,7 +31,7 @@ namespace ShoppingCart
             app
                 .UseDefaultFiles()
                 .UseStaticFiles()
-                .UseSignalR(routes => routes.MapHub<OrderStatusHub>("/orderstatus"))
+                .UseSignalR(routes => routes.MapHub<ShoppingCartHub>(path: $"/{Path}"))
                 .UseMvc();
         }
     }

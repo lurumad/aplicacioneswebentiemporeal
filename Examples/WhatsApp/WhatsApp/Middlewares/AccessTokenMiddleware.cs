@@ -19,7 +19,7 @@ namespace WhatsApp.Middlewares
 
         public Task Invoke(HttpContext context)
         {
-            if (!context.Request.Headers.ContainsKey("Authorization"))
+            if (!context.Request.Headers.ContainsKey(HeaderNames.Authorization))
             {
                 if (context.Request.QueryString.HasValue 
                     && context.Request.Query.TryGetValue("access_token", out StringValues token))

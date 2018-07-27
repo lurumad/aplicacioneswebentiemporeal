@@ -7,7 +7,7 @@ namespace ShoppingCart.Repositories
     {
         string CreateOrder(Basket basket);
         OrderStatus GetOrderStatus(string id);
-        void ChangeStatus(string id);
+        OrderStatus ChangeStatus(string id);
         IEnumerable<string> GetOrderIds();
     }
 }

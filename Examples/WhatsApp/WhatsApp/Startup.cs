@@ -38,7 +38,7 @@ namespace WhatsApp
                         //        var accessToken = context.Request.Query["access_token"];
 
                         //        if (!string.IsNullOrEmpty(accessToken) &&
-                        //            (context.HttpContext.WebSockets.IsWebSocketRequest || context.Request.Headers["Accept"] == "text/event-stream"))
+                        //            (context.HttpContext.WebSockets.   || context.Request.Headers["Accept"] == "text/event-stream"))
                         //        {
                         //            context.Token = context.Request.Query["access_token"];
                         //        }

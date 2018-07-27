@@ -28,6 +28,7 @@ class CartLine {
 class Cart {
 
     constructor() {
+        this.interval;
         this.orderStatus = ko.observable(0);
         this.showShoppingCart = ko.observable(true);
         this.showOderStatusTracking = ko.observable(false);
@@ -61,42 +62,28 @@ class Cart {
             },
             body: JSON.stringify({ items })
         })
-        .then(res => res.json())
-        .then(data => {
-            this.showShoppingCart(false);
-            this.showOderStatusTracking(true);
+            .then(res => res.json())
+            .then(data => {
+                this.showShoppingCart(false);
+                this.showOderStatusTracking(true);
 
-            this.longPolling(() =>
-                fetch(`api/orders/${data.orderId}`)
-                    .then(res => res.json())
-                    .then(status => {
-                        this.orderStatus(status);
-                        return status === Status.Shipped;
-                    }), 30000, 1000)
-            .then(result => console.log('Poll finished!'));
-        });
+                this.longpolling(data.orderId);
+            });
     };
 
-    longPolling(fn, timeout, interval) {
-        const endTime = Number(new Date()) + (timeout || 30000);
-        interval = interval || 1000;
-
-        const condition = (resolve, reject) => {
-            const promise = fn();
-            promise.then(result => {
-                if (result) {
-                    resolve(result);
-                }
-                else if (Number(new Date()) < endTime) {
-                    setTimeout(condition, interval, resolve, reject);
-                }
-                else {
-                    reject(new Error(`Timed out for ${fn}`));
-                }
-            });
-        };
-
-        return new Promise(condition);
+    longpolling(orderId) {
+        Promise.race([
+            fetch(`api/orders/${orderId}`),
+            new Promise((resolver, reject) => setTimeout(() => reject(new Error('Timeout')), 10000))
+        ])
+        .then(res => res.json())
+        .then(result => {
+            this.orderStatus(result);
+            if (result !== Status.Shipped) {
+                this.longpolling(orderId);
+            }
+        })
+        .catch(error => this.polling(orderId));
     };
 };
 

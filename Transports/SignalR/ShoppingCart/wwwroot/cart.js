@@ -5,9 +5,7 @@
     Paid: 4,
     Shipped: 5
 };
-const formatCurrency = (value) => (
-    "€" + value.toFixed(2)
-)
+const formatCurrency = (value) => "€" + value.toFixed(2);
 
 class CartLine {
 
@@ -23,7 +21,7 @@ class CartLine {
             this.product(undefined);
         });
     }
-};
+}
 
 class Cart {
 
@@ -34,7 +32,7 @@ class Cart {
         this.lines = ko.observableArray([new CartLine()]);
         this.grandTotal = ko.computed(() => {
             let total = 0;
-            this.lines().map((line) => { total += line.subtotal() })
+            this.lines().map((line) => { total += line.subtotal(); });
             return total;
         });
         this.removeLine = this.removeLine.bind(this);
@@ -42,48 +40,41 @@ class Cart {
 
     completed(status) {
         return ko.computed(() => this.orderStatus() >= status ? "progtrckr-done" : "progtrckr-todo");
-    };
-    addLine() { this.lines.push(new CartLine()) };
-    removeLine(line) { this.lines.remove(line) };
+    }
+    addLine() { this.lines.push(new CartLine()); }
+    removeLine(line) { this.lines.remove(line); }
     save() {
         const items = this.lines().map((line) => {
             return line.product() ? {
                 productName: line.product().name,
                 quantity: line.quantity(),
                 price: line.product().price
-            } : undefined
+            } : undefined;
         });
-        fetch('api/basket/checkout', {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ items })
-        })
-        .then(res => res.json())
-        .then(data => {
-            this.showShoppingCart(false);
-            this.showOderStatusTracking(true);
 
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl('/orderstatus')
-                .configureLogging(signalR.LogLevel.Information)
-                .build();
+        this.showShoppingCart(false);
+        this.showOderStatusTracking(true);
 
-            connection.on('UpdateOrderStatus', (status) => {
-                this.orderStatus(status);
-            });
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/orderstatus')
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
 
-            connection.on("Ckeckout", (basket) => {
-                console.log(basket);
-            });
-
-            connection.start()
-                .then(() => connection.invoke("GetOrderStatus", data.orderId))
-                .catch(error => console.error(error));
+        connection.on('UpdateOrderStatus', (status) => {
+            this.orderStatus(status);
         });
-    };
-};
+
+        connection.on("OnCheckoutDone", (basket) => {
+            console.log(basket);
+        });
+
+        connection.start()
+            .then(() => {
+                connection.invoke("Checkout", { items } )
+                    .catch(error => console.error(error));
+            })
+            .catch(error => console.error(error));
+    }
+}
 
 ko.applyBindings(new Cart());

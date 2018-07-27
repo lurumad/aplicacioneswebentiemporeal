@@ -14,9 +14,9 @@ namespace ShoppingCart.Services
             this.orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         }
 
-        public void ChangeStatus(string id)
+        public OrderStatus ChangeStatus(string id)
         {
-            orderRepository.ChangeStatus(id);
+            return orderRepository.ChangeStatus(id);
         }
 
         public IEnumerable<string> GetOrdersIds()

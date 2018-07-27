@@ -6,7 +6,7 @@ namespace ShoppingCart.Services
     public interface IOrderService
     {
         OrderStatus GetOrderStatus(string id);
-        void ChangeStatus(string id);
+        OrderStatus ChangeStatus(string id);
         IEnumerable<string> GetOrdersIds();
     }
 }
