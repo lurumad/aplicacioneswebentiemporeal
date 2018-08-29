@@ -8,12 +8,13 @@ namespace Chat
     {
         public void ConfigureServices(IServiceCollection services)
         {
-
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-
+            app
+                .UseDefaultFiles()
+                .UseStaticFiles();
         }
     }
 }

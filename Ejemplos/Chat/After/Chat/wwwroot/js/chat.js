@@ -26,7 +26,7 @@ class Chat {
     }
 
     ownMessage(username) {
-        return ko.computed(() => this.me() === username ? 'my-message' : 'other-message float-right')
+        return ko.computed(() => this.me() === username ? 'my-message' : 'other-message float-right');
     }
 
     send() {
