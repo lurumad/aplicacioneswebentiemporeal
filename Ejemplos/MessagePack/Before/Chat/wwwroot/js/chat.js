@@ -8,7 +8,6 @@ class Chat {
         this.canSend = ko.computed(() => this.me() && this.text());
         this._connection = new signalR.HubConnectionBuilder()
             .withUrl("/chat")
-            .withHubProtocol(new signalR.protocols.msgpack.MessagePackHubProtocol())
             .build();
 
         this._connection.on('message', (message) => {
@@ -27,7 +26,7 @@ class Chat {
     }
 
     ownMessage(username) {
-        return ko.computed(() => this.me() === username ? 'my-message' : 'other-message float-right')
+        return ko.computed(() => this.me() === username ? 'my-message' : 'other-message float-right');
     }
 
     send() {
