@@ -52,7 +52,7 @@ class Cart {
                 productName: line.product().name,
                 quantity: line.quantity(),
                 price: line.product().price
-            } : undefined
+            } : undefined;
         });
         fetch('api/basket/checkout', {
             method: 'post',
