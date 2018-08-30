@@ -24,16 +24,7 @@ namespace ShoppingCart.Hubs
         {
             var checkout = checkoutService.Checkout(basket);
             cache.Set(checkout.OrderId, Context.ConnectionId);
-            cache.Set(Context.ConnectionId, checkout.OrderId);
             await Clients.Caller.SendAsync("OnCheckoutDone", checkout);
-        }
-
-        public override Task OnDisconnectedAsync(Exception exception)
-        {
-            var orderId = cache.Get<string>(Context.ConnectionId);
-            cache.Remove(Context.ConnectionId);
-            cache.Remove(orderId);
-            return base.OnDisconnectedAsync(exception);
         }
     }
 }
