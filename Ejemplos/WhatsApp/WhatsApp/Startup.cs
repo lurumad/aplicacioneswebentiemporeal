@@ -31,20 +31,20 @@ namespace WhatsApp
                             IssuerSigningKey = WhatsAppController.SigningCredentials.Key
                         };
 
-                        //options.Events = new JwtBearerEvents
-                        //{
-                        //    OnMessageReceived = context =>
-                        //    {
-                        //        var accessToken = context.Request.Query["access_token"];
+                        options.Events = new JwtBearerEvents
+                        {
+                            OnMessageReceived = context =>
+                            {
+                                var accessToken = context.Request.Query["access_token"];
 
-                        //        if (!string.IsNullOrEmpty(accessToken) &&
-                        //            (context.HttpContext.WebSockets.   || context.Request.Headers["Accept"] == "text/event-stream"))
-                        //        {
-                        //            context.Token = context.Request.Query["access_token"];
-                        //        }
-                        //        return Task.CompletedTask;
-                        //    }
-                        //};
+                                if (!string.IsNullOrEmpty(accessToken) &&
+                                    (context.HttpContext.WebSockets.IsWebSocketRequest || context.Request.Headers["Accept"] == "text/event-stream"))
+                                {
+                                    context.Token = context.Request.Query["access_token"];
+                                }
+                                return Task.CompletedTask;
+                            }
+                        };
                     })
                 .Services
                 .AddMvcCore()
@@ -55,7 +55,7 @@ namespace WhatsApp
         {
             app
                 .UseWebSockets()
-                .UseMiddleware<AccessTokenMiddleware>()
+                //.UseMiddleware<AccessTokenMiddleware>()
                 .UseAuthentication()
                 .UseDefaultFiles()
                 .UseStaticFiles()

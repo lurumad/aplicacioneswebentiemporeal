@@ -3,7 +3,6 @@ using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace WhatsApp.Middlewares
@@ -19,13 +18,11 @@ namespace WhatsApp.Middlewares
 
         public Task Invoke(HttpContext context)
         {
-            if (!context.Request.Headers.ContainsKey(HeaderNames.Authorization))
+            if (!context.Request.Headers.ContainsKey(HeaderNames.Authorization)
+                && context.Request.QueryString.HasValue
+                && context.Request.Query.TryGetValue("access_token", out StringValues token))
             {
-                if (context.Request.QueryString.HasValue 
-                    && context.Request.Query.TryGetValue("access_token", out StringValues token))
-                {
-                    context.Request.Headers.Add(HeaderNames.Authorization, $"Bearer {token.FirstOrDefault()}");
-                }
+                context.Request.Headers.Add(HeaderNames.Authorization, $"Bearer {token.FirstOrDefault()}");
             }
 
             return next(context);
